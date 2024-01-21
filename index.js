@@ -18,7 +18,15 @@ function getRandom(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-console.log(dataEs.length)
+function getQuoteId(data, id, res) {
+    const quote = data.find(element => element.id === id);
+
+    if (quote) {
+        res.send(quote); // Enviar el objeto encontrado como respuesta
+    } else {
+        res.status(404).send('Quote not found'); // Enviar un mensaje de error si el ID no se encuentra
+    }
+}
 
 function getRandomNoRepeat(data, res){ 
     const numRandom = getRandom(0, data.length - 1); //generamos un número aleatorio entre las frases existentes
@@ -39,7 +47,7 @@ function getRandomNoRepeat(data, res){
     }
 }
 
-function language(lang, res, value){
+function language(lang, res, value, id){
     if(value === 0){
         if(lang === 'en'){
             res.send(dataEn);
@@ -64,6 +72,14 @@ function language(lang, res, value){
         } else{
             res.send('Error, please select a valid language');
         }
+    } else if(value === 3){
+        if(lang === 'en'){
+            getQuoteId(dataEn, id, res);
+        } else if(lang === 'es'){
+            getQuoteId(dataEs, id, res);
+        } else{
+            res.send('Error, please select a valid language');
+        }
     } else{
         res.send('Error, define el value válido');
     }
@@ -79,6 +95,12 @@ app.get('/quotes/:lang/day', (req, res) =>{
 
 app.get('/quotes/:lang/random', (req, res) =>{
     language(req.params.lang, res, 2);
+});
+
+app.get('/quotes/:lang/:id', (req, res) =>{
+    const id = parseInt(req.params.id);
+    language(req.params.lang, res, 3, id);
+
 });
 
 app.listen(port, () => {
